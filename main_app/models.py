@@ -1,5 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from datetime import date  # Import date at the top of the models file
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -26,6 +28,8 @@ class Cat(models.Model):
     description = models.TextField(max_length=250)
     age = models.IntegerField()
     toys = models.ManyToManyField(Toy)
+    # Add the foreign key linking to a user instance
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.name
@@ -36,6 +40,9 @@ class Cat(models.Model):
         # Use the 'reverse' function to dynamically find the URL for viewing this cat's details
         return reverse('cat-detail', kwargs={'cat_id': self.id})
     
+    def fed_for_today(self):
+        return self.feeding_set.filter(date=date.today()).count() >= len(MEALS)
+
 
 class Feeding(models.Model):
     date = models.DateField('Feeding date')
